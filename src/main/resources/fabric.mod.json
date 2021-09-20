@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "mclangsplit",
+  "version": "${version}",
+
+  "name": "MC LangSplit Fabric",
+  "description": "This mod adds a dual language functionality to Minecraft (Fabric Port)",
+  "authors": [
+    "Ant"
+  ],
+  "contact": {
+    "homepage": "https://github.com/AntMCDev/MCLangSplitFabric",
+    "sources": "https://github.com/AntMCDev/MCLangSplitFabric"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/mclangsplit/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.ant.mclangsplit.MCLangSplit"
+    ]
+  },
+  "mixins": [
+    "mclangsplit.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.x",
+    "java": ">=16"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
