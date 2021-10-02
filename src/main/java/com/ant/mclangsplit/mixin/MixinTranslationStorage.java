@@ -119,6 +119,7 @@ public abstract class MixinTranslationStorage {
                             s1 = s1.substring(0, index) + mappingList.get(i++) + s1.substring(index + 2);
                         } catch (IndexOutOfBoundsException ex) {
                             MCLangSplit.LOGGER.error(ex.getMessage() + "; " + str + " " + s1);
+                            break;
                         }
                     }
                 }
