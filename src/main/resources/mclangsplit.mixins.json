@@ -8,9 +8,12 @@
   "client": [
     "MixinClickableWidget",
     "MixinControlsListWidgetKeyBindingEntry",
+    "MixinScreen",
+    "MixinTranslatableText",
     "MixinTranslationStorage",
-    "MixinTranslationStorageAccessor",
-    "MixinControlsListWidgetAccessor"
+    "MixinControlsListWidgetAccessor",
+    "MixinTranslatableTextAccessor",
+    "MixinTranslationStorageAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

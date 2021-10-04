@@ -17,6 +17,8 @@ public class ConfigHandler {
 
         public static final String SECOND_LANGUAGE;
         public static final ArrayList<String> IGNORE_KEYS;
+        public static final ArrayList<String> INCLUDE_KEYS;
+        public static final Boolean IGNORE_TOOLTIPS;
 
         static {
             File configDir = new File(CONFIG_DIR);
@@ -46,12 +48,17 @@ public class ConfigHandler {
                 }
             }
 
-            if (!map.containsKey("Language Settings") && !map.containsKey("\"Language Settings\"")) {
-                map.put("Language Settings", new HashMap<String, Object>());
+            if (!map.containsKey("Language Settings")) {
+                if (map.containsKey("\"Language Settings\"")) {
+                    map.put("Language Settings",  (HashMap<String, Object>)map.get("\"Language Settings\""));
+                    map.remove("\"Language Settings\"");
+                } else {
+                    map.put("Language Settings", new HashMap<String, Object>());
+                }
                 change = true;
             }
 
-            Map<String, Object> languageSettings = (HashMap<String, Object>)map.getOrDefault("Language Settings", (HashMap<String, Object>)map.get("\"Language Settings\""));
+            Map<String, Object> languageSettings = (HashMap<String, Object>)map.get("Language Settings");
 
             if (!languageSettings.containsKey("secondlanguage")) {
                 languageSettings.put("secondlanguage", "");
@@ -63,8 +70,20 @@ public class ConfigHandler {
                 change = true;
             }
 
+            if (!languageSettings.containsKey("includeKeys")) {
+                languageSettings.put("includeKeys", new ArrayList<String>());
+                change = true;
+            }
+
+            if (!languageSettings.containsKey("ignoreTooltips")) {
+                languageSettings.put("ignoreTooltips", false);
+                change = true;
+            }
+
             SECOND_LANGUAGE = (String)languageSettings.get("secondlanguage");
             IGNORE_KEYS = (ArrayList<String>)languageSettings.get("ignoreKeys");
+            INCLUDE_KEYS = (ArrayList<String>)languageSettings.get("includeKeys");
+            IGNORE_TOOLTIPS = (Boolean)languageSettings.get("ignoreTooltips");
 
             if (change) {
                 TomlWriter writer = new TomlWriter.Builder()
