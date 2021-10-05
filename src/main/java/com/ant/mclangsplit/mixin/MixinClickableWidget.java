@@ -1,5 +1,6 @@
 package com.ant.mclangsplit.mixin;
 
+import com.ant.mclangsplit.config.ConfigHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -65,7 +66,10 @@ public abstract class MixinClickableWidget extends DrawableHelper implements Dra
 
         matrices.push();
         matrices.scale(scaleFactor, 1f, 1f);
-        drawCenteredText(matrices, textRenderer, this.getMessage(), (int)(((float)this.x + (float)this.width / 2f) * (1f / scaleFactor)), this.y + (this.height - 8) / 2, j | MathHelper.ceil(this.alpha * 255.0F) << 24);
+        if (ConfigHandler.Client.ENABLE_EXPERIMENTAL_FEATURES)
+            drawCenteredText(matrices, textRenderer, this.getMessage().shallowCopy(), (int)(((float)this.x + (float)this.width / 2f) * (1f / scaleFactor)), this.y + (this.height - 8) / 2, j | MathHelper.ceil(this.alpha * 255.0F) << 24);
+        else
+            drawCenteredText(matrices, textRenderer, this.getMessage(), (int)(((float)this.x + (float)this.width / 2f) * (1f / scaleFactor)), this.y + (this.height - 8) / 2, j | MathHelper.ceil(this.alpha * 255.0F) << 24);
         matrices.pop();
 
         ci.cancel();

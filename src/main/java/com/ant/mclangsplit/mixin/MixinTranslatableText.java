@@ -47,16 +47,20 @@ public abstract class MixinTranslatableText {
         }
 
         Language language = Language.getInstance();
-        if (language != this.languageCache) {
+
+        if (language != this.languageCache || ConfigHandler.Client.ENABLE_EXPERIMENTAL_FEATURES) {
             this.languageCache = language;
             this.translations.clear();
             String string = language.get(this.key);
 
             try {
-                this.setTranslation(string);
-                if (TranslationStorageExtension.altTranslations != null && !shouldExcludeKey(this.key) && !(ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
-                    System.out.println(this.key);
-                    this.translations.add(StringVisitable.plain(" "));
+                if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ORIGINAL || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH || (ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
+                    this.setTranslation(string);
+                }
+                if (TranslationStorageExtension.altTranslations != null && (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ALTERNATE || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) && !shouldExcludeKey(this.key) && !(ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
+                    if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) {
+                        this.translations.add(StringVisitable.plain(" "));
+                    }
                     this.setTranslation(language.get(TranslationStorageExtension.altTranslations.get(this.key)));
                 }
             } catch (TranslationException var4) {

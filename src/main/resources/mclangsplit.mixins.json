@@ -12,6 +12,7 @@
     "MixinTranslatableText",
     "MixinTranslationStorage",
     "MixinControlsListWidgetAccessor",
+    "MixinKeyBindingAccessor",
     "MixinTranslatableTextAccessor",
     "MixinTranslationStorageAccessor"
   ],

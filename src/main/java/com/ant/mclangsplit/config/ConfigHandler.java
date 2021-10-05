@@ -19,6 +19,7 @@ public class ConfigHandler {
         public static final ArrayList<String> IGNORE_KEYS;
         public static final ArrayList<String> INCLUDE_KEYS;
         public static final Boolean IGNORE_TOOLTIPS;
+        public static final Boolean ENABLE_EXPERIMENTAL_FEATURES;
 
         static {
             File configDir = new File(CONFIG_DIR);
@@ -80,10 +81,16 @@ public class ConfigHandler {
                 change = true;
             }
 
+            if (!languageSettings.containsKey("enableExperimentalFeatures")) {
+                languageSettings.put("enableExperimentalFeatures", false);
+                change = true;
+            }
+
             SECOND_LANGUAGE = (String)languageSettings.get("secondlanguage");
             IGNORE_KEYS = (ArrayList<String>)languageSettings.get("ignoreKeys");
             INCLUDE_KEYS = (ArrayList<String>)languageSettings.get("includeKeys");
             IGNORE_TOOLTIPS = (Boolean)languageSettings.get("ignoreTooltips");
+            ENABLE_EXPERIMENTAL_FEATURES = (Boolean)languageSettings.get("enableExperimentalFeatures");
 
             if (change) {
                 TomlWriter writer = new TomlWriter.Builder()
