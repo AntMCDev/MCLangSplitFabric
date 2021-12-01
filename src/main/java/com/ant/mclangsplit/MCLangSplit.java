@@ -32,43 +32,30 @@ public class MCLangSplit implements ClientModInitializer {
 			new ConfigHandler.Client();
 		}
 
-		if (ConfigHandler.Client.ENABLE_EXPERIMENTAL_FEATURES) {
-			keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.mclangsplit.toggle",
-					InputUtil.Type.KEYSYM,
-					GLFW.GLFW_KEY_R,
-					"category.mclangsplit"));
+		keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.mclangsplit.toggle",
+				InputUtil.Type.KEYSYM,
+				GLFW.GLFW_KEY_R,
+				"category.mclangsplit"));
 
-			ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-				ScreenKeyboardEvents.allowKeyPress(screen).register((screen2, key, scancodes, modifiers) -> {
-					return true;
-				});
-
-				ScreenKeyboardEvents.beforeKeyPress(screen).register((screen2, key, scancodes, modifiers) -> {
-					if (keyBinding.matchesKey(key, scancodes)) {
-						keyBinding.setPressed(true);
-						((MixinKeyBindingAccessor) keyBinding).setTimesPressed(((MixinKeyBindingAccessor) keyBinding).getTimesPressed() + 1);
-					}
-				});
-
-				ScreenKeyboardEvents.beforeKeyRelease(screen).register((screen2, key, scancodes, modifiers) -> {
-					if (keyBinding.matchesKey(key, scancodes)) {
-						keyBinding.setPressed(false);
-					}
-				});
-
-				ScreenEvents.beforeTick(screen).register(screen2 -> {
-					boolean b = false;
-					while (keyBinding.wasPressed()) {
-						b = true;
-					}
-
-					if (b) {
-						TranslationStorageExtension.nextMode();
-					}
-				});
+		ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+			ScreenKeyboardEvents.allowKeyPress(screen).register((screen2, key, scancodes, modifiers) -> {
+				return true;
 			});
 
-			ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			ScreenKeyboardEvents.beforeKeyPress(screen).register((screen2, key, scancodes, modifiers) -> {
+				if (keyBinding.matchesKey(key, scancodes)) {
+					keyBinding.setPressed(true);
+					((MixinKeyBindingAccessor) keyBinding).setTimesPressed(((MixinKeyBindingAccessor) keyBinding).getTimesPressed() + 1);
+				}
+			});
+
+			ScreenKeyboardEvents.beforeKeyRelease(screen).register((screen2, key, scancodes, modifiers) -> {
+				if (keyBinding.matchesKey(key, scancodes)) {
+					keyBinding.setPressed(false);
+				}
+			});
+
+			ScreenEvents.beforeTick(screen).register(screen2 -> {
 				boolean b = false;
 				while (keyBinding.wasPressed()) {
 					b = true;
@@ -78,7 +65,18 @@ public class MCLangSplit implements ClientModInitializer {
 					TranslationStorageExtension.nextMode();
 				}
 			});
-		}
+		});
+
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			boolean b = false;
+			while (keyBinding.wasPressed()) {
+				b = true;
+			}
+
+			if (b) {
+				TranslationStorageExtension.nextMode();
+			}
+		});
 	}
 
 	public static boolean isPhysicalClient() {

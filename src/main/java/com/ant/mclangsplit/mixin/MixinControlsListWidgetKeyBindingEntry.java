@@ -6,6 +6,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.option.ControlsListWidget;
 import net.minecraft.client.gui.screen.option.ControlsOptionsScreen;
+import net.minecraft.client.gui.screen.option.KeybindsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.math.MatrixStack;
@@ -42,7 +43,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
 
     @Inject(at = @At("HEAD"), method = "render", cancellable = true)
     public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta, CallbackInfo ci) throws IllegalAccessException, NoSuchFieldException {
-        ControlsOptionsScreen controlsScreen = ((MixinControlsListWidgetAccessor)this$0).getParent();
+        KeybindsScreen controlsScreen = ((MixinControlsListWidgetAccessor)this$0).getParent();
         int maxNameWidth = ((MixinControlsListWidgetAccessor)this$0).getMaxKeyNameLength();
 
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -50,7 +51,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
         int strWidth = minecraftClient.textRenderer.getWidth(bindingName);
         float scaleFactor = strWidth > width - 6 ? 1f / (strWidth / (width - 6f)) : 1f;
 
-        boolean bl = controlsScreen.focusedBinding == this.binding;
+        boolean bl = controlsScreen.selectedKeyBinding == this.binding;
         TextRenderer var10000 = minecraftClient.textRenderer;
         Text var10002 = this.bindingName;
         float var10003 = (float) (x + 90 - maxNameWidth);
@@ -58,10 +59,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
         Objects.requireNonNull(minecraftClient.textRenderer);
         matrices.push();
         matrices.scale(scaleFactor, 1f, 1f);
-        if (ConfigHandler.Client.ENABLE_EXPERIMENTAL_FEATURES)
-            var10000.draw(matrices, var10002.shallowCopy(), 6f, (float) (var10004 - 9 / 2), 16777215);
-        else
-            var10000.draw(matrices, var10002, 6f, (float) (var10004 - 9 / 2), 16777215);
+        var10000.draw(matrices, var10002.shallowCopy(), 6f, (float) (var10004 - 9 / 2), 16777215);
         matrices.pop();
         this.resetButton.x = x + 190;
         this.resetButton.y = y;
