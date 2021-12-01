@@ -54,27 +54,25 @@ public abstract class MixinTranslatableText {
 
         Language language = Language.getInstance();
 
-        if (language != this.languageCache || ConfigHandler.Client.ENABLE_EXPERIMENTAL_FEATURES) {
-            this.languageCache = language;
-            String string = language.get(this.key);
+        this.languageCache = language;
+        String string = language.get(this.key);
 
-            try {
-                ImmutableList.Builder<StringVisitable> builder = ImmutableList.builder();
-                Objects.requireNonNull(builder);
-                if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ORIGINAL || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH || (ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
-                    this.forEachPart(string, builder::add);
-                }
-                if (TranslationStorageExtension.altTranslations != null && (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ALTERNATE || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) && !shouldExcludeKey(this.key) && !(ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
-                    if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) {
-                        builder.add(StringVisitable.plain(" "));
-                    }
-                    this.forEachPart(language.get(TranslationStorageExtension.altTranslations.get(this.key)), builder::add);
-                }
-                this.translations = builder.build();
-            } catch (TranslationException var4) {
-                this.translations.clear();
-                this.translations.add(StringVisitable.plain(string));
+        try {
+            ImmutableList.Builder<StringVisitable> builder = ImmutableList.builder();
+            Objects.requireNonNull(builder);
+            if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ORIGINAL || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH || (ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
+                this.forEachPart(string, builder::add);
             }
+            if (TranslationStorageExtension.altTranslations != null && (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ALTERNATE || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) && !shouldExcludeKey(this.key) && !(ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
+                if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) {
+                    builder.add(StringVisitable.plain(" "));
+                }
+                this.forEachPart(language.get(TranslationStorageExtension.altTranslations.get(this.key)), builder::add);
+            }
+            this.translations = builder.build();
+        } catch (TranslationException var4) {
+            this.translations.clear();
+            this.translations.add(StringVisitable.plain(string));
         }
 
         ci.cancel();

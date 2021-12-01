@@ -59,10 +59,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
         Objects.requireNonNull(minecraftClient.textRenderer);
         matrices.push();
         matrices.scale(scaleFactor, 1f, 1f);
-        if (ConfigHandler.Client.ENABLE_EXPERIMENTAL_FEATURES)
-            var10000.draw(matrices, var10002.shallowCopy(), 6f, (float) (var10004 - 9 / 2), 16777215);
-        else
-            var10000.draw(matrices, var10002, 6f, (float) (var10004 - 9 / 2), 16777215);
+        var10000.draw(matrices, var10002.shallowCopy(), 6f, (float) (var10004 - 9 / 2), 16777215);
         matrices.pop();
         this.resetButton.x = x + 190;
         this.resetButton.y = y;
