@@ -2,10 +2,12 @@ package com.ant.mclangsplit.mixin;
 
 import com.ant.mclangsplit.TranslationStorageExtension;
 import com.ant.mclangsplit.config.ConfigHandler;
+import com.google.common.collect.ImmutableList;
 import net.minecraft.text.*;
 import net.minecraft.util.Language;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,6 +15,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 @Mixin(TranslatableText.class)
 public abstract class MixinTranslatableText {
@@ -25,10 +29,12 @@ public abstract class MixinTranslatableText {
     }
 
     @Final
+    @Mutable
     @Shadow
     private String key;
 
     @Final
+    @Mutable
     @Shadow
     private List<StringVisitable> translations;
 
@@ -36,7 +42,7 @@ public abstract class MixinTranslatableText {
     private Language languageCache;
 
     @Shadow
-    abstract void setTranslation(String translation);
+    abstract void forEachPart(String translation, Consumer<StringVisitable> partsConsumer);
 
     @Inject(at = @At("HEAD"), method = "updateTranslations", cancellable = true)
     private void updateTranslations(CallbackInfo ci) {
@@ -50,19 +56,21 @@ public abstract class MixinTranslatableText {
 
         if (language != this.languageCache || ConfigHandler.Client.ENABLE_EXPERIMENTAL_FEATURES) {
             this.languageCache = language;
-            this.translations.clear();
             String string = language.get(this.key);
 
             try {
+                ImmutableList.Builder<StringVisitable> builder = ImmutableList.builder();
+                Objects.requireNonNull(builder);
                 if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ORIGINAL || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH || (ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
-                    this.setTranslation(string);
+                    this.forEachPart(string, builder::add);
                 }
                 if (TranslationStorageExtension.altTranslations != null && (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ALTERNATE || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) && !shouldExcludeKey(this.key) && !(ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
                     if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) {
-                        this.translations.add(StringVisitable.plain(" "));
+                        builder.add(StringVisitable.plain(" "));
                     }
-                    this.setTranslation(language.get(TranslationStorageExtension.altTranslations.get(this.key)));
+                    this.forEachPart(language.get(TranslationStorageExtension.altTranslations.get(this.key)), builder::add);
                 }
+                this.translations = builder.build();
             } catch (TranslationException var4) {
                 this.translations.clear();
                 this.translations.add(StringVisitable.plain(string));
