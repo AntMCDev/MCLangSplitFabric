@@ -1,14 +1,12 @@
 package com.ant.mclangsplit.mixin;
 
-import com.ant.mclangsplit.MCLangSplit;
 import com.ant.mclangsplit.config.ConfigHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.screen.option.ControlsListWidget;
-import net.minecraft.client.gui.screen.option.ControlsOptionsScreen;
-import net.minecraft.client.gui.screen.option.KeybindsScreen;
+import net.minecraft.client.gui.screen.options.ControlsListWidget;
+import net.minecraft.client.gui.screen.options.ControlsOptionsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -20,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
 @Mixin(ControlsListWidget.KeyBindingEntry.class)
@@ -43,7 +40,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
 
     @Inject(at = @At("HEAD"), method = "render", cancellable = true)
     public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta, CallbackInfo ci) throws IllegalAccessException, NoSuchFieldException {
-        KeybindsScreen controlsScreen = ((MixinControlsListWidgetAccessor)this$0).getParent();
+        ControlsOptionsScreen controlsScreen = ((MixinControlsListWidgetAccessor)this$0).getParent();
         int maxNameWidth = ((MixinControlsListWidgetAccessor)this$0).getMaxKeyNameLength();
 
         MinecraftClient minecraftClient = MinecraftClient.getInstance();
@@ -51,7 +48,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
         int strWidth = minecraftClient.textRenderer.getWidth(bindingName);
         float scaleFactor = strWidth > width - 6 ? 1f / (strWidth / (width - 6f)) : 1f;
 
-        boolean bl = controlsScreen.selectedKeyBinding == this.binding;
+        boolean bl = controlsScreen.focusedBinding == this.binding;
         TextRenderer var10000 = minecraftClient.textRenderer;
         Text var10002 = this.bindingName;
         float var10003 = (float) (x + 90 - maxNameWidth);
