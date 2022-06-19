@@ -30,15 +30,40 @@ import java.util.stream.Stream;
 
 @Mixin(TranslationStorage.class)
 public abstract class MixinTranslationStorage {
-    @Inject(at = @At("RETURN"), method = "load", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "load", cancellable = true)
     private static void load(ResourceManager resourceManager, List<LanguageDefinition> definitions, CallbackInfoReturnable<TranslationStorage> cir) {
-        Map<String, String> map = Maps.newHashMap();
+        Map<String, String> originalMap = Maps.newHashMap();
+        boolean originalBl = false;
+        Map<String, String> altMap = Maps.newHashMap();
+        boolean altBl = false;
 
-        boolean bl = false;
+        {
+            Iterator var4 = definitions.iterator();
+
+            while(var4.hasNext()) {
+                LanguageDefinition languageDefinition = (LanguageDefinition)var4.next();
+                originalBl |= languageDefinition.isRightToLeft();
+                String string = String.format("lang/%s.json", languageDefinition.getCode());
+                Iterator var7 = resourceManager.getAllNamespaces().iterator();
+
+                while(var7.hasNext()) {
+                    String string2 = (String)var7.next();
+
+                    try {
+                        Identifier identifier = new Identifier(string2, string);
+                        load((List)resourceManager.getAllResources(identifier), (Map)originalMap);
+                        postProcess((Map)originalMap);
+                    } catch (Exception var11) {
+                        MCLangSplit.LOGGER.warn("Skipped language file: {}:{} ({})", string2, string, var11.toString());
+                    }
+                }
+            }
+        }
+
         Iterator var4 = definitions.iterator();
         boolean found = false;
         while (var4.hasNext()) {
-            LanguageDefinition languageDefinition = (LanguageDefinition)var4.next();
+            LanguageDefinition languageDefinition = (LanguageDefinition) var4.next();
             if (languageDefinition.getCode().equals(ConfigHandler.Client.SECOND_LANGUAGE)) {
                 found = true;
             }
@@ -48,17 +73,17 @@ public abstract class MixinTranslationStorage {
             Map<String, LanguageDefinition> langMap = loadAvailableLanguages(resourceManager.streamResourcePacks());
             if (langMap.containsKey(ConfigHandler.Client.SECOND_LANGUAGE)) {
                 LanguageDefinition languageDefinition = langMap.get(ConfigHandler.Client.SECOND_LANGUAGE);
-                bl |= languageDefinition.isRightToLeft();
+                altBl |= languageDefinition.isRightToLeft();
                 String string = String.format("lang/%s.json", languageDefinition.getCode());
                 Iterator var7 = resourceManager.getAllNamespaces().iterator();
 
-                while(var7.hasNext()) {
-                    String string2 = (String)var7.next();
+                while (var7.hasNext()) {
+                    String string2 = (String) var7.next();
 
                     try {
                         Identifier identifier = new Identifier(string2, string);
-                        load((List)resourceManager.getAllResources(identifier), (Map)map);
-                    } catch (FileNotFoundException var10) {
+                        load((List) resourceManager.getAllResources(identifier), (Map) altMap);
+                        postProcess((Map)altMap);
                     } catch (Exception var11) {
                         MCLangSplit.LOGGER.warn("Skipped language file: {}:{} ({})", string2, string, var11.toString());
                     }
@@ -71,7 +96,8 @@ public abstract class MixinTranslationStorage {
             if (Modifier.isPrivate(constructor.getModifiers())) {
                 constructor.setAccessible(true);
             }
-            TranslationStorageExtension.altTranslations = (TranslationStorage) constructor.newInstance(ImmutableMap.copyOf(map), bl);
+            TranslationStorageExtension.altTranslations = (TranslationStorage) constructor.newInstance(ImmutableMap.copyOf(altMap), altBl);
+            cir.setReturnValue((TranslationStorage) constructor.newInstance(ImmutableMap.copyOf(originalMap), originalBl));
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ex) {
             MCLangSplit.LOGGER.error("Could not access constructor in ClientLanguageMap injection", ex);
         }
@@ -109,6 +135,17 @@ public abstract class MixinTranslationStorage {
             }
         }
 
+    }
+
+    private static void postProcess(Map<String, String> map) {
+        for (String s : map.keySet()) {
+            int i = 0;
+            while (map.get(s).contains("%s")) {
+                String v = map.get(s);
+                int j = v.indexOf("%s");
+                map.put(s, v.substring(0, j) + "%" + ++i + "$s" + v.substring(j+2));
+            }
+        }
     }
 
     private static Map<String, LanguageDefinition> loadAvailableLanguages(Stream<ResourcePack> packs) {

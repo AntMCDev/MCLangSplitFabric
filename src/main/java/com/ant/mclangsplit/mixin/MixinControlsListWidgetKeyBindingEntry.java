@@ -1,16 +1,12 @@
 package com.ant.mclangsplit.mixin;
 
-import com.ant.mclangsplit.MCLangSplit;
-import com.ant.mclangsplit.config.ConfigHandler;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.option.ControlsListWidget;
-import net.minecraft.client.gui.screen.option.ControlsOptionsScreen;
 import net.minecraft.client.gui.screen.option.KeybindsScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Final;
@@ -20,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
 @Mixin(ControlsListWidget.KeyBindingEntry.class)
@@ -59,7 +54,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
         Objects.requireNonNull(minecraftClient.textRenderer);
         matrices.push();
         matrices.scale(scaleFactor, 1f, 1f);
-        var10000.draw(matrices, var10002.shallowCopy(), 6f, (float) (var10004 - 9 / 2), 16777215);
+        var10000.draw(matrices, var10002.copy(), 6f, (float) (var10004 - 9 / 2), 16777215);
         matrices.pop();
         this.resetButton.x = x + 190;
         this.resetButton.y = y;
@@ -70,7 +65,7 @@ public class MixinControlsListWidgetKeyBindingEntry {
         this.editButton.setMessage(this.binding.getBoundKeyLocalizedText());
         boolean bl2 = false;
         if (!this.binding.isUnbound()) {
-            KeyBinding[] var13 = minecraftClient.options.keysAll;
+            KeyBinding[] var13 = minecraftClient.options.allKeys;
             int var14 = var13.length;
 
             for (int var15 = 0; var15 < var14; ++var15) {
@@ -83,9 +78,9 @@ public class MixinControlsListWidgetKeyBindingEntry {
         }
 
         if (bl) {
-            this.editButton.setMessage((new LiteralText("> ")).append(this.editButton.getMessage().shallowCopy().formatted(Formatting.YELLOW)).append(" <").formatted(Formatting.YELLOW));
+            this.editButton.setMessage((Text.literal("> ")).append(this.editButton.getMessage().copy().formatted(Formatting.YELLOW)).append(" <").formatted(Formatting.YELLOW));
         } else if (bl2) {
-            this.editButton.setMessage(this.editButton.getMessage().shallowCopy().formatted(Formatting.RED));
+            this.editButton.setMessage(this.editButton.getMessage().copy().formatted(Formatting.RED));
         }
 
         this.editButton.render(matrices, mouseX, mouseY, tickDelta);
