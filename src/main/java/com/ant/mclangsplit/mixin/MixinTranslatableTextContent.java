@@ -18,14 +18,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-@Mixin(TranslatableText.class)
-public abstract class MixinTranslatableText {
+@Mixin(TranslatableTextContent.class)
+public abstract class MixinTranslatableTextContent {
     private static final List<String> IGNORE_DUAL_TRANSLATION_KEYS = new ArrayList<>();
     static {
         IGNORE_DUAL_TRANSLATION_KEYS.add("translation.test.invalid");
         IGNORE_DUAL_TRANSLATION_KEYS.add("translation.test.invalid2");
         IGNORE_DUAL_TRANSLATION_KEYS.add("options.on.composed");
         IGNORE_DUAL_TRANSLATION_KEYS.add("options.off.composed");
+        IGNORE_DUAL_TRANSLATION_KEYS.add("options.generic_value");
+        IGNORE_DUAL_TRANSLATION_KEYS.add("options.pixel_value");
+        IGNORE_DUAL_TRANSLATION_KEYS.add("options.percent_value");
+        IGNORE_DUAL_TRANSLATION_KEYS.add("options.percent_add_value");
     }
 
     @Final
@@ -64,10 +68,13 @@ public abstract class MixinTranslatableText {
                 this.forEachPart(string, builder::add);
             }
             if (TranslationStorageExtension.altTranslations != null && (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_ALTERNATE || TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) && !shouldExcludeKey(this.key) && !(ConfigHandler.Client.IGNORE_TOOLTIPS && fromTooltip)) {
-                if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) {
-                    builder.add(StringVisitable.plain(" "));
+                String altString = TranslationStorageExtension.altTranslations.get(this.key);
+                if (!string.equals(altString)) {
+                    if (TranslationStorageExtension.translationMode == TranslationStorageExtension.Mode.SHOW_BOTH) {
+                        builder.add(StringVisitable.plain(" "));
+                    }
+                    this.forEachPart(TranslationStorageExtension.altTranslations.get(this.key), builder::add);
                 }
-                this.forEachPart(language.get(TranslationStorageExtension.altTranslations.get(this.key)), builder::add);
             }
             this.translations = builder.build();
         } catch (TranslationException var4) {

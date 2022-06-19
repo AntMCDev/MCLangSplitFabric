@@ -9,11 +9,11 @@
     "MixinClickableWidget",
     "MixinControlsListWidgetKeyBindingEntry",
     "MixinScreen",
-    "MixinTranslatableText",
+    "MixinTranslatableTextContent",
     "MixinTranslationStorage",
     "MixinControlsListWidgetAccessor",
     "MixinKeyBindingAccessor",
-    "MixinTranslatableTextAccessor",
+    "MixinTranslatableTextContentAccessor",
     "MixinTranslationStorageAccessor"
   ],
   "injectors": {
